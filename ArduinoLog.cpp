@@ -86,7 +86,8 @@ void Logging::setSuffix(printfunction f)
 #endif
 }
 
-void Logging::print(const __FlashStringHelper *format, va_list args)
+
+void Logging::print(const __FlashStringHelper *format, va_list &args)
 {
 #ifndef DISABLE_LOGGING	  	
 	PGM_P p = reinterpret_cast<PGM_P>(format);
@@ -96,7 +97,7 @@ void Logging::print(const __FlashStringHelper *format, va_list args)
 		if (c == '%')
 		{
 			c = pgm_read_byte(p++);
-			printFormat(c, &args);
+			printFormat(c, args);
 		}
 		else
 		{
@@ -106,14 +107,15 @@ void Logging::print(const __FlashStringHelper *format, va_list args)
 #endif
 }
 
-void Logging::print(const char *format, va_list args) {
+
+void Logging::print(const char *format, va_list &args) {
 #ifndef DISABLE_LOGGING	  	
 	for (; *format != 0; ++format)
 	{
 		if (*format == '%')
 		{
 			++format;
-			printFormat(*format, &args);
+			printFormat(*format, args);
 		}
 		else
 		{
@@ -123,7 +125,7 @@ void Logging::print(const char *format, va_list args) {
 #endif
 }
 
-void Logging::printFormat(const char format, va_list *args) {
+void Logging::printFormat(const char format, va_list &args) {
 #ifndef DISABLE_LOGGING
 	if (format == '%')
 	{
@@ -131,55 +133,55 @@ void Logging::printFormat(const char format, va_list *args) {
 	}
 	else if (format == 's')
 	{
-		register char *s = (char *)va_arg(*args, int);
+		register char *s = (char *)va_arg(args, char*);
 		_logOutput->print(s);
 	}
 	else if (format == 'S')
 	{
-		register __FlashStringHelper *s = (__FlashStringHelper *)va_arg(*args, int);
+		register __FlashStringHelper *s = (__FlashStringHelper *)va_arg(args, char*);
 		_logOutput->print(s);
 	}
 	else if (format == 'd' || format == 'i')
 	{
-		_logOutput->print(va_arg(*args, int), DEC);
+		_logOutput->print(va_arg(args, int), DEC);
 	}
 	else if (format == 'D' || format == 'F')
 	{
-		_logOutput->print(va_arg(*args, double));
+		_logOutput->print(va_arg(args, double));
 	}
 	else if (format == 'x')
 	{
-		_logOutput->print(va_arg(*args, int), HEX);
+		_logOutput->print(va_arg(args, int), HEX);
 	}
 	else if (format == 'X')
 	{
 		_logOutput->print("0x");
-		_logOutput->print(va_arg(*args, int), HEX);
+		_logOutput->print(va_arg(args, int), HEX);
 	}
 	else if (format == 'b')
 	{
-		_logOutput->print(va_arg(*args, int), BIN);
+		_logOutput->print(va_arg(args, int), BIN);
 	}
 	else if (format == 'B')
 	{
 		_logOutput->print("0b");
-		_logOutput->print(va_arg(*args, int), BIN);
+		_logOutput->print(va_arg(args, int), BIN);
 	}
 	else if (format == 'l')
 	{
-		_logOutput->print(va_arg(*args, long), DEC);
+		_logOutput->print(va_arg(args, long), DEC);
 	}
 	else if (format == 'u')
 	{
-		_logOutput->print(va_arg(*args, unsigned long), DEC);
+		_logOutput->print(va_arg(args, unsigned long), DEC);
 	}
 	else if (format == 'c')
 	{
-		_logOutput->print((char) va_arg(*args, int));
+		_logOutput->print((char) va_arg(args, int));
 	}
 	else if(format == 't')
 	{
-		if (va_arg(*args, int) == 1)
+		if (va_arg(args, int) == 1)
 		{
 			_logOutput->print("T");
 		}
@@ -190,7 +192,7 @@ void Logging::printFormat(const char format, va_list *args) {
 	}
 	else if (format == 'T')
 	{
-		if (va_arg(*args, int) == 1)
+		if (va_arg(args, int) == 1)
 		{
 			_logOutput->print(F("true"));
 		}
